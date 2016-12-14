@@ -1,28 +1,35 @@
 <?php
 namespace Document;
 
-use Element\ElementInterface;
+use Maker\DocumentMakerInterface;
 use Page\Formats\Dimension;
 use Page\Formats\FormatInterface;
 use Page\PageInterface;
 use StringableInterface;
 use StringableTrait;
-use DocumentMakerInterface;
 
 class DocumentEntity implements DocumentInterface, StringableInterface
 {
     use StringableTrait;
 
+    /** @var array */
     private $pages;
 
     /** @var FormatInterface */
     private $format;
 
-    /** @var ElementInterface */
-    private $footer;
+    /** @var DocumentMakerInterface */
+    private $maker;
 
-    /** @var Dimension */
-    private $footerHeight;
+    public function setMaker(DocumentMakerInterface $maker)
+    {
+        $this->maker = $maker;
+    }
+
+    public function getMaker(): DocumentMakerInterface
+    {
+        return $this->maker;
+    }
 
     public function addPage(PageInterface $page)
     {
@@ -53,27 +60,34 @@ class DocumentEntity implements DocumentInterface, StringableInterface
         return $this->format;
     }
 
-    public function setFooter(ElementInterface $footer, Dimension $footerHeight): DocumentInterface
+    public function getFooter()
     {
-        $this->footer = $footer;
-        $this->footerHeight = $footerHeight;
-
-        return $this;
+        return $this->getMaker()->getFooter();
     }
 
-    public function getFooter(): ElementInterface
+    public function getFooterHeight(): Dimension
     {
-        return $this->footer;
+        return $this->getMaker()->getFooterHeight() ?? new Dimension(0, 'px');
+    }
+
+    public function getHeader()
+    {
+        return $this->getMaker()->getHeader();
+    }
+
+    public function getHeaderHeight(): Dimension
+    {
+        return $this->getMaker()->getHeaderHeight() ?? new Dimension(0, 'px');
     }
 
 
-    public function prepare(DocumentMakerInterface $maker): DocumentInterface
+    public function hasHeader(): bool
     {
-        if ($maker->getFooter()) {
-            $this->setFooter($maker->getFooter(), $maker->getFooterHeight());
-        }
-
+        return $this->getHeader() !== false;
     }
 
-
+    public function hasFooter(): bool
+    {
+        return $this->getFooter() !== false;
+    }
 }

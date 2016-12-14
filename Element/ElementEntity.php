@@ -9,6 +9,8 @@ class ElementEntity implements ElementInterface, StringableInterface
 
     private $content;
     private $attributes;
+    private $appended;
+    private $prepended;
 
     public function setContent(string $content): ElementInterface
     {
@@ -21,7 +23,13 @@ class ElementEntity implements ElementInterface, StringableInterface
         return $this->content ?? [];
     }
 
-    public function setAttribute($name, $value)
+    public function setId(string $id)
+    {
+        $this->setAttribute('id', $id);
+        return $this;
+    }
+
+    public function setAttribute(string $name, string $value): ElementInterface
     {
         $this->attributes[$name] = $value;
         return $this;
@@ -37,7 +45,19 @@ class ElementEntity implements ElementInterface, StringableInterface
         return $this->attributes[$name] ?? '';
     }
 
-    public function addStyle($property, $value)
+    public function elementToString($content): string
+    {
+        $elem = "<div ";
+        foreach ($this->getAttributes() as $name => $value) {
+            $elem .= "{$name}=\"{$value}\" ";
+        }
+
+        $elem .= ">{$content}</div>";
+
+        return $elem;
+    }
+
+    public function addStyle(string $property, string $value): ElementInterface
     {
         $style = $this->getAttribute('style');
 
@@ -48,18 +68,35 @@ class ElementEntity implements ElementInterface, StringableInterface
 
     public function finalize($content)
     {
-        $div = "<div ";
-        foreach ($this->getAttributes() as $name => $value) {
-            $div .= "{$name}=\"{$value}\" ";
-        }
+        $allElements = array_merge($this->getPrepended(), [$this->elementToString($content)], $this->getAppended());
 
-        $div .= ">{$content}</div>";
-
-        return $div;
+        return implode('', $allElements);
     }
 
     public function getItems(): array
     {
         return $this->getContent();
+    }
+
+    public function append(ElementInterface $item): ElementInterface
+    {
+        $this->appended[] = $item;
+        return $this;
+    }
+
+    public function getAppended(): array
+    {
+        return $this->appended ?? [];
+    }
+
+    public function prepend(ElementInterface $item): ElementInterface
+    {
+        $this->prepended[] = $item;
+        return $this;
+    }
+
+    public function getPrepended(): array
+    {
+        return $this->prepended ?? [];
     }
 }

@@ -1,16 +1,18 @@
 <?php
 namespace Document;
-use Element\ElementInterface;
+
 use Page\Formats\Dimension;
 use Page\PageInterface;
-use DocumentMakerInterface;
 
 interface DocumentInterface
 {
     public function addPage(PageInterface $page);
     public function getPages(): array;
-    public function prepare(DocumentMakerInterface $maker): DocumentInterface;
-    public function setFooter(ElementInterface $footer, Dimension $footerHeight): DocumentInterface;
-    public function getFooter(): ElementInterface;
+    public function getFooter();
+    public function getFooterHeight(): Dimension;
+    public function getHeader();
+    public function getHeaderHeight(): Dimension;
+    public function hasHeader(): bool;
+    public function hasFooter(): bool;
 
 }

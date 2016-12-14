@@ -13,7 +13,8 @@ class DocumentEntityFactory
         foreach ($pages as $page) {
             $pageEntity = (new PageFactory)
                 ->buildFromString($page)
-                ->setFormat($format);
+                ->setFormat($format)
+                ->setDocument($entity);
 
             $entity->addPage($pageEntity);
         }

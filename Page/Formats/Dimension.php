@@ -7,7 +7,7 @@ class Dimension
     private $dimension;
     private $unit;
 
-    public function __construct($dimension, $unit)
+    public function __construct(float $dimension, string $unit)
     {
         $this->setDimension($dimension);
         $this->setUnit($unit);
@@ -18,7 +18,7 @@ class Dimension
         return $this->dpi;
     }
 
-    public function setDimension(int $dimension): Dimension
+    public function setDimension(float $dimension): Dimension
     {
         $this->dimension = $dimension;
         return $this;
@@ -64,9 +64,13 @@ class Dimension
         return $this->getPixels() . 'px';
     }
 
-    public function subtract(Dimension $subAmount)
+    public function subtract(Dimension $subAmount): Dimension
     {
-        $this->setDimension($this->getPixels() - $subAmount->getPixels());
-        $this->setUnit('px');
+        return new self($this->getPixels() - $subAmount->getPixels(), 'px');
+    }
+
+    public function clone()
+    {
+        return new self($this->getDimension(), $this->getUnit());
     }
 }

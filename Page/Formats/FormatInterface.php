@@ -3,8 +3,7 @@ namespace Page\Formats;
 
 interface FormatInterface
 {
-    public function getHeight();
-    public function getWidth();
-    public function wrapContent(string $content);
+    public function getHeight(): Dimension;
+    public function getWidth(): Dimension;
     public function getPaperSizeArray(): array;
 }

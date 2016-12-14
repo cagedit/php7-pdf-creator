@@ -4,6 +4,7 @@ namespace Writer;
 use Exception;
 use File\FileList;
 use File\File;
+use Maker\DocumentMakerInterface;
 use Page\Formats\FormatInterface;
 use Script\CommandLineScriptEntity;
 
@@ -20,6 +21,9 @@ class PdfWriter implements WriterInterface
 
     /** @var FormatInterface */
     private $format;
+
+    /** @var DocumentMakerInterface */
+    private $maker;
 
     public function __construct()
     {
@@ -61,7 +65,20 @@ class PdfWriter implements WriterInterface
             $script .= " phantomjs.addDocument('{$file}');";
         }
 
-        $script .= "phantomjs.setPaperSize({$this->getPaperSize()}); phantomjs.print();";
+        $paperSize = $this->getFormat()->getPaperSizeArray();
+        $maker = $this->getMaker();
+
+        if ($footer = $maker->getFooter()) {
+            $paperSize['footer'] = [
+                'height' => $maker->getFooterHeight()->toPixelsString(),
+                'contents' => $maker->getFooter()->__toString()
+            ];
+        }
+
+
+        $paperSize = json_encode($paperSize);
+
+        $script .= "phantomjs.setPaperSize({$paperSize}); phantomjs.print();";
         $script .= "phantomjs.setViewportSize({$this->getViewportSize()});";
 
         File::write($filename, $script);
@@ -114,12 +131,26 @@ class PdfWriter implements WriterInterface
 
     private function getPaperSize(): string
     {
-        return json_encode($this->getFormat()->getPaperSizeArray());
+        return $this->getFormat()->getPaperSizeArray();
     }
 
     private function getViewportSize(): string
     {
         $format = $this->getFormat();
         return json_encode(['height' => $format->getHeight()->getDimension(), 'width' => $format->getWidth()->getDimension()]);
+    }
+
+    public function setMaker(DocumentMakerInterface $maker): WriterInterface
+    {
+        $this->maker = $maker;
+        return $this;
+    }
+
+    /**
+     * @return DocumentMakerInterface
+     */
+    public function getMaker()
+    {
+        return $this->maker;
     }
 }

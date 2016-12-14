@@ -42,21 +42,6 @@ class BaseFormat
         return $this->dimensions;
     }
 
-    private function getWrapper(): ElementInterface
-    {
-        return (new ElementEntity)
-            ->addStyle('width', $this->getWidth()->toPixelsString())
-            ->addStyle('height', $this->getHeight()->toPixelsString())
-            ->addStyle('overflow', 'hidden')
-            ->addStyle('background', '#999')
-            ->addStyle('position', 'relative');
-    }
-
-    public function wrapContent(string $content): string
-    {
-        return $this->getWrapper()->setContent($content);
-    }
-
     public function getPaperSizeArray(): array
     {
         return [

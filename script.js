@@ -23,6 +23,10 @@ function error(page)
     page.onError = function(msg, trace) {
         log('error' +  msg + trace);
     };
+
+    page.onConsoleMessage = function(msg) {
+        log(msg);
+    };
 }
 
 function log(msg) {
@@ -39,11 +43,35 @@ function phantomjs() {
     var _documents = [];
     var _paperSize;
     var _viewportSize;
+    var _footer;
 
     log('starting');
 
     function getPage() {
-        return require('webpage').create();
+        log('getting page');
+        var page = require('webpage').create();
+
+        error(page);
+
+        return page;
+
+    }
+
+    function preparePage(page) {
+        page.viewportSize = getViewportSize();
+
+        var paperSize = getPaperSize();
+
+        var footerContents = paperSize.footer.contents;
+        log('footer content');
+        log(footerContents);
+        paperSize['footer']['contents'] = phantom.callback(function(pageNum, pageCount) {
+            return footerContents.replace('pageNum', pageNum).replace('pageCount', pageCount);
+        });
+
+        page.paperSize = paperSize;
+
+        return page;
     }
 
     function setPaperSize(paperSize) {
@@ -62,6 +90,15 @@ function phantomjs() {
 
     function getViewportSize() {
         return _viewportSize;
+    }
+
+    function setFooter(footer) {
+        _footer = footer;
+        return this;
+    }
+
+    function getFooter() {
+        return _footer;
     }
 
     function setDocuments(documents) {
@@ -90,12 +127,22 @@ function phantomjs() {
     function printOne(file) {
         var page = getPage();
 
-        page.paperSize = getPaperSize();
-        page.viewportSize = getViewportSize();
+        page = preparePage(page);
 
-        log(_viewportSize);
+        // page.paperSize = {
+        //     width: '8.5in',
+        //     height: '11in',
+        //     footer: {
+        //         height: "1cm",
+        //         contents: phantom.callback(function(pageNum, numPages) {
+        //             return "<h1>Footer <span style='float:right'>" + pageNum + " / " + numPages + "</span></h1>";
+        //         })
+        //     }
+        // }
+
 
         page.onLoadFinished = function() {
+
             var nextDoc = getNextDocument()
 
             if (nextDoc) {
@@ -120,6 +167,8 @@ function phantomjs() {
 
     return {
         getPage: getPage,
+        setFooter: setFooter,
+        getFooter: getFooter,
         setDocuments: setDocuments,
         getNextDocument: getNextDocument,
         setPaperSize: setPaperSize,
