@@ -48,8 +48,9 @@ function phantomjs() {
     log('starting');
 
     function getPage() {
-        log('getting page');
         var page = require('webpage').create();
+        page.viewportSize = getViewportSize();
+        page.paperSize = getPaperSize();
 
         error(page);
 
@@ -57,22 +58,6 @@ function phantomjs() {
 
     }
 
-    function preparePage(page) {
-        page.viewportSize = getViewportSize();
-
-        var paperSize = getPaperSize();
-
-        var footerContents = paperSize.footer.contents;
-        log('footer content');
-        log(footerContents);
-        paperSize['footer']['contents'] = phantom.callback(function(pageNum, pageCount) {
-            return footerContents.replace('pageNum', pageNum).replace('pageCount', pageCount);
-        });
-
-        page.paperSize = paperSize;
-
-        return page;
-    }
 
     function setPaperSize(paperSize) {
         _paperSize = paperSize;
@@ -127,7 +112,6 @@ function phantomjs() {
     function printOne(file) {
         var page = getPage();
 
-        page = preparePage(page);
 
         // page.paperSize = {
         //     width: '8.5in',

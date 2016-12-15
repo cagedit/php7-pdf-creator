@@ -14,24 +14,24 @@ require_once(__DIR__ . '/bootstrap.php');
 /** @var DocumentMakerEntity $maker */
 $maker = new DocumentMakerEntity;
 
-$maker->buildFromArray(DocumentFormatsEnum::A4, [
-    ['test', 'Doc A P2'],
-    ['abc']
-]);
+$pages[] = ['Doc1 Page1', 'Doc1 Page2'];
+$pages[] = ['Doc2'];
+
+$pages[] = [
+    (new ElementEntity)->setContent('This element has style')
+        ->addStyle('background-color', 'blue')
+        ->addStyle('color', '#FFF')
+];
+
+$maker->buildFromArray(DocumentFormatsEnum::A4, $pages);
 
 /** @var ElementEntity $footer */
 $footer = (new ElementEntity)
-    ->setContent('Page [pageNum] of [pageCount]')
+    ->setContent('Page pageNum of pageCount')
     ->addStyle('text-align', 'center');
 
 $maker->setFooter(
     $footer,
-    new Dimension(30, 'px')
-);
-
-$header = (new ElementEntity)->setContent('This is the header');
-$maker->setHeader(
-    $header,
     new Dimension(30, 'px')
 );
 

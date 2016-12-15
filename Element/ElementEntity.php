@@ -14,13 +14,13 @@ class ElementEntity implements ElementInterface, StringableInterface
 
     public function setContent(string $content): ElementInterface
     {
-        $this->content[] = $content;
+        $this->content = $content;
         return $this;
     }
 
-    public function getContent(): array
+    public function getContent(): string
     {
-        return $this->content ?? [];
+        return $this->content ?? '';
     }
 
     public function setId(string $id)
@@ -75,7 +75,7 @@ class ElementEntity implements ElementInterface, StringableInterface
 
     public function getItems(): array
     {
-        return $this->getContent();
+        return [$this->getContent()];
     }
 
     public function append(ElementInterface $item): ElementInterface
@@ -98,5 +98,10 @@ class ElementEntity implements ElementInterface, StringableInterface
     public function getPrepended(): array
     {
         return $this->prepended ?? [];
+    }
+
+    public function clone(): ElementInterface
+    {
+        return clone $this;
     }
 }

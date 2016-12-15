@@ -65,18 +65,7 @@ class PdfWriter implements WriterInterface
             $script .= " phantomjs.addDocument('{$file}');";
         }
 
-        $paperSize = $this->getFormat()->getPaperSizeArray();
-        $maker = $this->getMaker();
-
-        if ($footer = $maker->getFooter()) {
-            $paperSize['footer'] = [
-                'height' => $maker->getFooterHeight()->toPixelsString(),
-                'contents' => $maker->getFooter()->__toString()
-            ];
-        }
-
-
-        $paperSize = json_encode($paperSize);
+        $paperSize = json_encode($this->getFormat()->getPaperSizeArray());
 
         $script .= "phantomjs.setPaperSize({$paperSize}); phantomjs.print();";
         $script .= "phantomjs.setViewportSize({$this->getViewportSize()});";
@@ -127,11 +116,6 @@ class PdfWriter implements WriterInterface
     public function getFormat(): FormatInterface
     {
         return $this->format;
-    }
-
-    private function getPaperSize(): string
-    {
-        return $this->getFormat()->getPaperSizeArray();
     }
 
     private function getViewportSize(): string

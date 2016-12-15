@@ -93,6 +93,9 @@ class DocumentMakerEntity implements DocumentMakerInterface, StringableInterface
 
     public function setFooter(ElementInterface $footer, Dimension $footerHeight): DocumentMakerInterface
     {
+        $footer->addStyle('height', $footerHeight->toPixelsString())
+            ->addStyle('line-height', $footerHeight->toPixelsString());
+
         $this->footer = $footer;
         $this->footerHeight = $footerHeight;
 

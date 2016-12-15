@@ -20,6 +20,9 @@ class PageEntity implements PageInterface, StringableInterface
     /** @var FormatInterface */
     private $format;
 
+    /** @var int */
+    private $pageNumber;
+
     public function setDocument(DocumentInterface $document): PageInterface
     {
         $this->document = $document;
@@ -46,6 +49,17 @@ class PageEntity implements PageInterface, StringableInterface
     {
         $this->format = $format;
         return $this;
+    }
+
+    public function setPageNumber(int $number): PageInterface
+    {
+        $this->pageNumber = $number;
+        return $this;
+    }
+
+    public function getPageNumber(): int
+    {
+        return $this->pageNumber;
     }
 
     public function getFormat(): FormatInterface
@@ -96,9 +110,9 @@ class PageEntity implements PageInterface, StringableInterface
             $wrapper->prepend($this->buildHeader($header, $this->getDocument()->getHeaderHeight()));
         }
 
-//        if ($footer = $this->getDocument()->getFooter()) {
-//            $wrapper->append($this->buildFooter($footer, $this->getDocument()->getFooterHeight()));
-//        }
+        if ($footer = $this->getDocument()->getFooter()) {
+            $wrapper->append($this->buildFooter($footer, $this->getDocument()->getFooterHeight()));
+        }
 
         return $wrapper;
     }
@@ -125,11 +139,20 @@ class PageEntity implements PageInterface, StringableInterface
      */
     private function buildFooter($footer, $footerHeight)
     {
-        return $footer
+        $document = $this->getDocument();
+        $pageCount = count($document->getPages());
+        $content = str_replace(
+            ['pageNum', 'pageCount'],
+            [$this->getPageNumber(), $pageCount],
+            $footer->getContent()
+        );
+
+        return $footer->clone()
             ->setId('footer')
             ->addStyle('height', $footerHeight->toPixelsString())
             ->addStyle('width', $this->getFormat()->getWidth()->toPixelsString())
             ->addStyle('display', 'inline-block')
-            ->addStyle('background-color', 'red');
+            ->addStyle('background-color', 'red')
+            ->setContent($content);
     }
 }
